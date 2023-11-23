@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Listado de Órdenes de Pedido</title>
+</head>
+<body>
+    <h1>Listado de Órdenes de Pedido</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Proveedor</th>
+                <th>Productos</th>
+                <th>Cantidad</th>
+                <th>Fecha de Pedido</th>
+                <th>Estado de Entrega</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for orden in ordenes %}
+            <tr>
+                <td>{{ orden.id }}</td>
+                <td>{{ orden.proveedor.username }}</td>
+                <td>
+                    {% for producto in orden.productos.all %}
+                        {{ producto.nombre }}<br>
+                    {% endfor %}
+                </td>
+                <td>{{ orden.cantidad }}</td>
+                <td>{{ orden.fecha_pedido }}</td>
+                <td>{% if orden.estado_entrega %}Entregado{% else %}Pendiente{% endif %}</td>
+                <td>
+                    <a href="{% url 'editar_orden' orden.id %}">Editar</a>
+                    <a href="{% url 'eliminar_orden' orden.id %}">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'crear_orden' %}">Crear Orden de Pedido</a>
+</body>
+</html>

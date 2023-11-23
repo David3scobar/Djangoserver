@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Reservar Hora de Servicio</h2>
+<form id="reservaForm" action="{% url 'crear_reserva' %}" method="post">
+    {% csrf_token %} <!-- Agrega el token CSRF aquí -->
+    
+    <!-- Agrega un campo oculto para el ID del servicio -->
+    <input type="hidden" id="servicio_id" name="servicio_id" value="">
+    
+    <!-- Agrega aquí los campos del formulario, como fecha, hora, etc. -->
+    <label for="fecha">Fecha:</label>
+    <input type="date" id="fecha" name="fecha" required>
+
+    <label for="hora">Hora:</label>
+    <input type="time" id="hora" name="hora" required>
+
+    <!-- Agregar más campos según tus necesidades -->
+
+    <button type="submit">Reservar</button>
+</form>
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+</script>
+
+{% endblock %}

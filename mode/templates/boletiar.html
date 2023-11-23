@@ -1,0 +1,58 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container mt-4">
+        <form method="post" class="my-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.cliente.id_for_label }}">Cliente:</label>
+                {{ form.cliente }}
+            </div>
+            <div class="form-group">
+                <label for="id_nombre">Nombre:</label>
+                <input type="text" id="id_nombre" name="nombre" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="id_rut_cliente">RUT del Cliente:</label>
+                <input type="text" id="id_rut_cliente" name="rut_cliente" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Tipo:</label>
+                <div>
+                    <input type="radio" id="id_es_producto" name="es_producto" value="Producto">
+                    <label for="id_es_producto">Producto</label>
+                </div>
+                <div>
+                    <input type="radio" id="id_es_servicio" name="es_producto" value="Servicio">
+                    <label for="id_es_servicio">Servicio</label>
+                </div>
+            </div>
+            <div class="form-group" id="producto-field" style="display: none;">
+                <label for="{{ form.producto.id_for_label }}">Producto:</label>
+                {{ form.producto }}
+            </div>
+            <div class="form-group" id="servicio-field" style="display: none;">
+                <label for="{{ form.servicio.id_for_label }}">Servicio:</label>
+                {{ form.servicio }}
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("input[name='es_producto']").change(function() {
+                var selectedTipo = $("input[name='es_producto']:checked").val();
+                if (selectedTipo === 'Producto') {
+                    $("#producto-field").show();
+                    $("#servicio-field").hide();
+                } else if (selectedTipo === 'Servicio') {
+                    $("#producto-field").hide();
+                    $("#servicio-field").show();
+                }
+            });
+        });
+    </script>
+{% endblock %}

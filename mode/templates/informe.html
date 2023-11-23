@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Informe Personalizado</title>
+</head>
+<body>
+    <h1>Informe Personalizado</h1>
+    
+    <h2>Servicios:</h2>
+    <ul>
+        {% for servicio in servicios %}
+            <li>{{ servicio.nombre }} - {{ servicio.descripcion }}</li>
+        {% endfor %}
+    </ul>
+    
+    <h2>Reservas:</h2>
+    <ul>
+        {% for reserva in reservas %}
+            <li>Reserva de {{ reserva.cliente.username }} para {{ reserva.servicio.nombre }} el {{ reserva.fecha_hora }}</li>
+        {% endfor %}
+    </ul>
+    
+    <!-- Puedes repetir este patrón para otros modelos y resultados del informe -->
+    
+</body>
+</html>

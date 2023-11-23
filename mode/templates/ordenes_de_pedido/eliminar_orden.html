@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Eliminar Orden de Pedido</title>
+</head>
+<body>
+    <h1>Eliminar Orden de Pedido</h1>
+    <p>¿Estás seguro de que deseas eliminar la orden de pedido con ID {{ orden.id }}?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Eliminar Orden de Pedido</button>
+    </form>
+    <a href="{% url 'listar_ordenes' %}">Volver a la lista de órdenes</a>
+</body>
+</html>

@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container">
+    <h1>Servicios Disponibles</h1>
+    <label for="servicio">Servicio: </label>
+    <select id="servicioDropdown" name="servicio" class="form-control">
+        <option value="">Selecciona un servicio</option>
+        {% for servicio in servicios %}
+            <option value="{{ servicio.id }}">{{ servicio.nombre }}</option>
+        {% endfor %}
+    </select>
+    <button id="mostrarFormulario" class="btn btn-primary mt-2">Reservar Hora</button>
+
+    <div id="formularioReserva" style="display:none;">
+        <h2>Reservar Hora de Servicio</h2>
+        <form id="reservaForm" action="{% url 'crear_reserva' %}" method="post" class="mt-3">
+            {% csrf_token %} <!-- Agrega el token CSRF aquí -->
+            
+            <input type="hidden" id="servicio_id" name="servicio_id" value="">
+            <div class="form-group">
+                <label for="rut">RUT:</label>
+                <input type="text" id="rut" name="rut" class="form-control" required>
+            </div>
+            
+            <p id="msgerror"></p>
+            <p id="msgerror1">Formato: "XXXXXXXX-X"</p>
+            
+            <div class="form-group">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="fecha">Fecha:</label>
+                <input type="date" id="fecha" name="fecha" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="hora">Hora:</label>
+                <input type="time" id="hora" name="hora" class="form-control" required>
+            </div>
+            <!-- Agrega el atributo disabled al botón de enviar por defecto -->
+            <button type="submit" class="btn btn-success" id="btnEnviar" >Reservar</button>
+        </form>
+    </div>
+</div>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<!-- Incluye el script adicional para el componente DateTimePicker -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.3.5/jquery.timepicker.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.3.5/jquery.timepicker.min.css">
+
+<script>
+
+    $(document).ready(function() {
+        // Manejar la selección de servicio cuando cambia el valor del menú desplegable
+        $("#servicioDropdown").change(function() {
+            // Obtener el ID del servicio seleccionado
+            var servicioID = $(this).val();
+            
+            if (servicioID) {
+                // Seleccionar el texto del servicio seleccionado
+                var servicioNombre = $("#servicioDropdown option:selected").text();
+                
+                // Establecer el valor del campo de servicio y su atributo data-id
+                $("#servicioSeleccionado").val(servicioNombre).attr('data-id', servicioID);
+                
+                // Establecer el valor del campo oculto servicio_id
+                $("#servicio_id").val(servicioID);
+                
+                // Ocultar el menú desplegable
+                $(this).hide();
+                
+                // Mostrar el formulario de reserva
+                $("#formularioReserva").show();
+                
+                // Ocultar el botón "Reservar Hora"
+                $("#mostrarFormulario").hide();
+                
+                // Puedes hacer algo más con el servicio seleccionado si es necesario
+            }
+        });
+    
+        // Manejar el envío del formulario
+        // ...
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        $("#rut").on('input', function() {
+            var rutInput = $(this).val();
+            var isValid = validaRut(rutInput);
+            updateValidationStatus(isValid);
+        });
+
+        function validaRut(rutCompleto) {
+            rutCompleto = rutCompleto.replace("‐", "-");
+            if (!/^[0-9]+[-|‐]{1}[0-9kK]{1}$/.test(rutCompleto))
+                return false;
+            var tmp = rutCompleto.split('-');
+            var digv = tmp[1];
+            var rut = tmp[0];
+            if (digv === 'K') digv = 'k';
+            return (dv(rut) == digv);
+        }
+
+        function dv(T) {
+            var M = 0, S = 1;
+            for (; T; T = Math.floor(T / 10))
+                S = (S + T % 10 * (9 - M++ % 6)) % 11;
+            return S ? S - 1 : 'k';
+        }
+
+        function updateValidationStatus(isValid) {
+            var msgError = $("#msgerror");
+            if (isValid) {
+                msgError.html(" ");
+                $("#msgerror1").html(" ");
+                $("#rut").removeClass("rut-invalido");
+            } else {
+                msgError.html("El RUT no es válido. ");
+                
+                $("#rut").addClass("rut-invalido");
+            }
+        }
+    });
+</script>
+
+<script>
+var today = new Date();
+var dd = today.getDate();
+var mm = today.getMonth() + 1;
+var yyyy = today.getFullYear();
+
+if (dd < 10) {
+    dd = '0' + dd;
+}
+
+if (mm < 10) {
+    mm = '0' + mm;
+}
+
+today = yyyy + '-' + mm + '-' + dd;
+document.getElementById("fecha").setAttribute("min", today);
+
+// Deshabilitar horas fuera del rango 8:30 am - 6:30 pm
+document.getElementById("hora").addEventListener("focus", function () {
+    var selectedDate = document.getElementById("fecha").value;
+
+    if (selectedDate === today) {
+        // Si la fecha seleccionada es hoy, mostrar solo las horas en intervalos de 30 minutos en el rango de 8:30 am - 6:30 pm
+        var hoursSelect = document.getElementById("hora");
+        hoursSelect.innerHTML = ''; // Limpiar las opciones existentes
+
+        for (var hour = 8; hour <= 18; hour++) {
+            for (var minute = 0; minute <= 30; minute += 30) {
+                var formattedHour = (hour < 10 ? '0' : '') + hour;
+                var formattedMinute = (minute === 0 ? '00' : minute);
+                var timeOption = formattedHour + ':' + formattedMinute;
+
+                var option = document.createElement("option");
+                option.value = timeOption;
+                option.text = timeOption;
+                hoursSelect.add(option);
+            }
+        }
+    } else {
+        // Si la fecha seleccionada no es hoy, mostrar todas las horas
+        document.getElementById("hora").innerHTML = '<option value="" disabled selected>Selecciona una hora</option>';
+    }
+});
+    
+
+    // Realizar la petición AJAX
+    $(document).ready(function() {
+        $("#reservaForm").submit(function(event) {
+            event.preventDefault(); // Evita que el formulario se envíe normalmente
+
+            $.ajax({
+                type: "POST",
+                url: "{% url 'crear_reserva' %}",
+                data: $("#reservaForm").serialize(),
+                success: function(response) {
+                    // Manejar la respuesta exitosa si es necesario
+                    alert("Reserva con éxito, se le enviará un correo con la información.");
+                    window.location.href = "{% url 'home' %}";  // Redirige a la página de inicio
+                },
+                error: function(xhr) {
+                    if (xhr.status === 400) {
+                        // Mostrar la alerta en caso de error
+                        alert(xhr.responseText);
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+$(document).ready(function() {
+    // ... (tu código existente)
+
+    // Validar que el nombre solo contenga letras y espacios
+    $("#nombre").on('input', function() {
+        var nombreInput = $(this).val();
+        var isValid = /^[a-zA-Z\s]+$/.test(nombreInput);
+        updateNombreValidationStatus(isValid);
+    });
+
+    function updateNombreValidationStatus(isValid) {
+        var msgError = $("#msgerror");
+        if (isValid) {
+            msgError.html(" ");
+            $("#nombre").removeClass("nombre-invalido");
+            $("#btnEnviar").show(); // Mostrar el botón cuando el nombre es válido
+        } else {
+            msgError.html("El nombre no debe contener números. ");
+            $("#nombre").addClass("nombre-invalido");
+            $("#btnEnviar").hide(); // Ocultar el botón cuando el nombre no es válido
+        }
+    }
+
+    // Inicialmente ocultar el botón
+    $("#btnEnviar").hide();
+
+    // Manejar el envío del formulario
+    $("#reservaForm").submit(function(event) {
+        event.preventDefault(); // Evita que el formulario se envíe normalmente
+
+        // Realizar la validación del nombre una vez más antes de enviar el formulario
+        var nombreInput = $("#nombre").val();
+        var nombreValido = /^[a-zA-Z\s]+$/.test(nombreInput);
+
+        if (nombreValido) {
+            // Continuar con el envío del formulario si el nombre es válido
+            $.ajax({
+                type: "POST",
+                url: "{% url 'crear_reserva' %}",
+                data: $("#reservaForm").serialize(),
+                success: function(response) {
+                    // Manejar la respuesta exitosa si es necesario
+                    alert("Reserva con éxito, se le enviará un correo con la información.");
+                    window.location.href = "{% url 'home' %}";  // Redirige a la página de inicio
+                },
+                error: function(xhr) {
+                    if (xhr.status === 400) {
+                        // Mostrar la alerta en caso de error
+                        alert(xhr.responseText);
+                    }
+                }
+            });
+        } else {
+            // Mostrar un mensaje de error si el nombre no es válido
+            alert("Por favor, ingrese un nombre válido antes de enviar el formulario.");
+        }
+    });
+});
+</script>
+
+{% endblock %}

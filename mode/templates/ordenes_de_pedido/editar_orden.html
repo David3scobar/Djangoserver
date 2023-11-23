@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Editar Orden de Pedido</title>
+</head>
+<body>
+    <h1>Editar Orden de Pedido</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Actualizar Orden de Pedido</button>
+    </form>
+</body>
+</html>

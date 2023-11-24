@@ -76,10 +76,10 @@ WSGI_APPLICATION = 'ServiExpress.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'serviexpress_bd',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
+        'NAME': 'serviexpressbd',
+        'USER': 'admin',
+        'PASSWORD': 'adminadmin',
+        'HOST': 'serviexpressbd.cfgzrojeop59.us-east-1.rds.amazonaws.com',
         'PORT': '3306',
     }
 }
